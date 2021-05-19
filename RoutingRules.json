@@ -1,0 +1,61 @@
+{
+    "Resources": {
+        "S3Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "AccessControl": "PublicRead",
+                "BucketName": "public-bucket",
+                "MetricsConfigurations": [
+                    {
+                        "Id": "EntireBucket"
+                    }
+                ],
+                "WebsiteConfiguration": {
+                    "IndexDocument": "index.html",
+                    "ErrorDocument": "error.html",
+                    "RoutingRules": [
+                        {
+                            "RoutingRuleCondition": {
+                                "HttpErrorCodeReturnedEquals": "404",
+                                "KeyPrefixEquals": "users/"
+                            },
+                            "RedirectRule": {
+                                "HostName": "index.html",
+                                "ReplaceKeyPrefixWith": "users/"
+                            }
+                        }
+                    ]
+                }
+            },
+            "DeletionPolicy": "Retain"
+        }
+    },
+    "Outputs": {
+        "WebsiteURL": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "WebsiteBucket",
+                    "WebsiteURL"
+                ]
+            },
+            "Description": "URL for website hosted on S3"
+        },
+        "S3BucketSecureURL": {
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "https://",
+                        {
+                            "Fn::GetAtt": [
+                                "WebsiteBucket",
+                                "DomainName"
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "Description": "Name of S3 bucket to hold website content"
+        }
+    }
+}
